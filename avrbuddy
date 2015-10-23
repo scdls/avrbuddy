@@ -1,0 +1,49 @@
+#!/bin/bash
+
+${AVRCHIP:=m328p}
+${AVRPROGRAMMER:=dragon_isp}
+
+case $1 in
+	burn)
+		if [ -z "$2" ]; then
+			echo "Please specify a HEX file!"
+			exit
+		fi
+		avrdude -c $AVRPROGRAMMER -p $AVRCHIP -U "flash:w:$2"
+		;;
+	erase)
+		avrdude -c $AVRPROGRAMMER -p $AVRCHIP -e
+		;;
+	enable-debug)
+		avrdude -c $AVRPROGRAMMER -p $AVRCHIP -U hfuse:w:0x9A:m
+		;;
+	disable-debug)
+		avrdude -c $AVRPROGRAMMER -p $AVRCHIP -U hfuse:w:0xDA:m
+		;;
+	debug)
+		avarice -gw :4040
+		;;
+	gdb)
+		if [ -z "$2" ]; then
+			echo "Please specify an ELF file!"
+			exit
+		fi
+		avr-gdb "$2" --eval-command="target remote localhost:4040"
+		;;
+	*)
+		echo "Usage: $0 COMMAND"
+		echo "Valid commands are:"
+		echo "  burn \$hexfile      Burns a HEX file to the target"
+		echo "  erase              Erases the target"
+		echo "  enable-debug       Enables DebugWIRE on the target"
+		echo "  disable-debug      Disables DebugWIRE on the target"
+		echo "  debug              Launches AVaRICE to debug a target"
+		echo "  gdb \$elffile       Launches GDB with an ELF file and connects to AVaRICE"
+		echo
+		echo "The current avrdude configurables are:"
+		echo "AVRCHIP: $AVRCHIP"
+		echo "AVRPROGRAMMER: $AVRPROGRAMMER"
+		echo "These are environment variables which you may override."
+		;;
+esac
+
