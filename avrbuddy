@@ -2,6 +2,7 @@
 
 : ${AVRCHIP:=m328p}
 : ${AVRPROGRAMMER:=dragon_isp}
+: ${AVRBAUD:=4}
 
 case $1 in
 	burn)
@@ -9,7 +10,7 @@ case $1 in
 			echo "Please specify a HEX file!"
 			exit
 		fi
-		avrdude -c $AVRPROGRAMMER -p $AVRCHIP -U "flash:w:$2"
+		avrdude -c $AVRPROGRAMMER -p $AVRCHIP -B $AVRBAUD -U "flash:w:$2"
 		;;
 	burn-fuses)
 		if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
@@ -22,16 +23,16 @@ case $1 in
 			: ${HFUSE:="$2"}
 			: ${LFUSE:="$3"}
 		fi
-		avrdude -c $AVRPROGRAMMER -p $AVRCHIP -B 4 -U lfuse:w:"$LFUSE":m hfuse:w:"$HFUSE":m -U efuse:w:"$EFUSE":m
+		avrdude -c $AVRPROGRAMMER -p $AVRCHIP -B $AVRBAUD -U lfuse:w:"$LFUSE":m hfuse:w:"$HFUSE":m -U efuse:w:"$EFUSE":m
 		;;
 	erase)
-		avrdude -c $AVRPROGRAMMER -p $AVRCHIP -e
+		avrdude -c $AVRPROGRAMMER -p $AVRCHIP -B $AVRBAUD -e
 		;;
 	enable-debug)
-		avrdude -c $AVRPROGRAMMER -p $AVRCHIP -U hfuse:w:0x9A:m
+		avrdude -c $AVRPROGRAMMER -p $AVRCHIP -B $AVRBAUD -U hfuse:w:0x9A:m
 		;;
 	disable-debug)
-		avrdude -c $AVRPROGRAMMER -p $AVRCHIP -U hfuse:w:0xDA:m
+		avrdude -c $AVRPROGRAMMER -p $AVRCHIP -B $AVRBAUD -U hfuse:w:0xDA:m
 		;;
 	debug)
 		avarice -gw :4040
@@ -57,6 +58,7 @@ case $1 in
 		echo "The current avrdude configurables are:"
 		echo "AVRCHIP: $AVRCHIP"
 		echo "AVRPROGRAMMER: $AVRPROGRAMMER"
+		echo "AVRBAUD: $AVRBAUD"
 		echo "These are environment variables which you may override."
 		;;
 esac
