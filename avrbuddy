@@ -11,6 +11,19 @@ case $1 in
 		fi
 		avrdude -c $AVRPROGRAMMER -p $AVRCHIP -U "flash:w:$2"
 		;;
+	burn-fuses)
+		if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
+			: ${EFUSE:=0x05}
+			: ${HFUSE:=0xDA}
+			: ${LFUSE:=0xE2}
+			echo "Using default flag values of E:$EFUSE H:$HFUSE L:$LFUSE"
+		else
+			: ${EFUSE:="$1"}
+			: ${HFUSE:="$2"}
+			: ${LFUSE:="$3"}
+		fi
+		avrdude -c $AVRPROGRAMMER -p $AVRCHIP -B 4 -U lfuse:w:"$LFUSE":m hfuse:w:"$HFUSE":m -U efuse:w:"$EFUSE":m
+		;;
 	erase)
 		avrdude -c $AVRPROGRAMMER -p $AVRCHIP -e
 		;;
@@ -33,12 +46,13 @@ case $1 in
 	*)
 		echo "Usage: $0 COMMAND"
 		echo "Valid commands are:"
-		echo "  burn \$hexfile      Burns a HEX file to the target"
-		echo "  erase              Erases the target"
-		echo "  enable-debug       Enables DebugWIRE on the target"
-		echo "  disable-debug      Disables DebugWIRE on the target"
-		echo "  debug              Launches AVaRICE to debug a target"
-		echo "  gdb \$elffile       Launches GDB with an ELF file and connects to AVaRICE"
+		echo "  burn \$hexfile                       Burns a HEX file to the target"
+		echo "  burn-fuses [\$efuse \$hfuse \$lfuse]   Burns fuses to the target (explicit flags are optional)"
+		echo "  erase                               Erases the target"
+		echo "  enable-debug                        Enables DebugWIRE on the target"
+		echo "  disable-debug                       Disables DebugWIRE on the target"
+		echo "  debug                               Launches AVaRICE to debug a target"
+		echo "  gdb \$elffile                        Launches GDB with an ELF file and connects to AVaRICE"
 		echo
 		echo "The current avrdude configurables are:"
 		echo "AVRCHIP: $AVRCHIP"
