@@ -16,7 +16,7 @@ case $1 in
 		if [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ]; then
 			: ${EFUSE:=0x05}
 			: ${HFUSE:=0xDA}
-			: ${LFUSE:=0xE2}
+			: ${LFUSE:=0xD6}
 			echo "Using default flag values of E:$EFUSE H:$HFUSE L:$LFUSE"
 		else
 			: ${EFUSE:="$2"}
